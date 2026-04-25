@@ -1,0 +1,12 @@
+{
+  "name": "hcg-ai-builder",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {},
+  "dependencies": {
+    "@notionhq/client": "^2.2.15"
+  },
+  "devDependencies": {
+    "vercel": "latest"
+  }
+}

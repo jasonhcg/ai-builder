@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Automation Roadmap — Kanban | Home Court Growth</title>
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #161b24;
+    --surface2: #1e2535;
+    --border: #2a3347;
+    --accent: #4f8ef7;
+    --accent2: #7c5fe6;
+    --accent3: #38c9a4;
+    --warn: #f59c42;
+    --danger: #e05c5c;
+    --text: #e2e8f0;
+    --text-muted: #8896ab;
+    --text-dim: #5a6a82;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .page {
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 40px 0 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--accent2);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 14px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    color: #fff;
+  }
+  .header h1 span { color: var(--accent); }
+  .header-sub {
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Sync pill */
+  .sync-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    background: var(--surface);
+    transition: color .2s, border-color .2s;
+  }
+  .sync-pill.syncing { color: var(--warn); border-color: var(--warn); }
+  .sync-pill.ok      { color: var(--accent3); border-color: var(--accent3); }
+  .sync-pill.error   { color: var(--danger); border-color: var(--danger); }
+  .sync-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: border-color .15s, color .15s;
+  }
+  .back-btn:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+  .refresh-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 14px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: border-color .15s, color .15s;
+  }
+  .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Board ── */
+  .board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    align-items: start;
+    position: relative;
+  }
+  @media (max-width: 960px) { .board { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .board { grid-template-columns: 1fr; } }
+
+  /* Board loading overlay */
+  .board-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(13,15,20,.7);
+    border-radius: 14px;
+    z-index: 10;
+    font-size: 13px;
+    color: var(--text-dim);
+    gap: 10px;
+    backdrop-filter: blur(2px);
+  }
+  .board-loading.hidden { display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+
+  /* Board error banner */
+  .board-error {
+    grid-column: 1 / -1;
+    background: rgba(224,92,92,.1);
+    border: 1px solid rgba(224,92,92,.3);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--danger);
+    display: none;
+  }
+  .board-error.visible { display: block; }
+
+  /* ── Column ── */
+  .column {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    min-height: 420px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .column.drag-over {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent), inset 0 0 20px rgba(79,142,247,.04);
+  }
+
+  /* Suggested — muted grey */
+  .column[data-col="suggested"] {
+    background: #10131a;
+    border-color: #1c2231;
+  }
+  .column[data-col="suggested"].drag-over {
+    border-color: var(--text-dim);
+    box-shadow: none;
+  }
+
+  .col-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .column[data-col="suggested"] .col-header { border-bottom-color: #1c2231; }
+
+  .col-title {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--accent);
+  }
+  .column[data-col="suggested"] .col-title { color: var(--text-dim); }
+  .column[data-col="inprogress"] .col-title { color: var(--warn); }
+  .column[data-col="done"] .col-title { color: var(--accent3); }
+
+  .col-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    background: var(--surface2);
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dim);
+    padding: 0 7px;
+  }
+  .column[data-col="suggested"] .col-count { background: #161b24; }
+
+  .col-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 180px;
+  }
+
+  .col-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: center;
+    line-height: 1.7;
+    padding: 20px 16px;
+    pointer-events: none;
+  }
+  .column[data-col="suggested"] .col-empty { border-color: #1c2231; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    cursor: grab;
+    transition: transform .1s, box-shadow .15s, border-color .15s, opacity .1s;
+    user-select: none;
+  }
+  .card:hover {
+    border-color: #3a4560;
+    box-shadow: 0 4px 20px rgba(0,0,0,.35);
+    transform: translateY(-1px);
+  }
+  .card.is-dragging {
+    opacity: 0.45;
+    cursor: grabbing;
+    transform: rotate(1.5deg) scale(1.02);
+  }
+
+  .card-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+  .card-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.55;
+    margin-bottom: 11px;
+  }
+  .card-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .priority-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .p-high   { background: rgba(224,92,92,.14);  color: var(--danger); }
+  .p-medium { background: rgba(245,156,66,.12); color: var(--warn); }
+  .p-low    { background: rgba(79,142,247,.12); color: var(--accent); }
+
+  .prio-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  /* Done column — strikethrough */
+  .column[data-col="done"] .card { opacity: 0.6; }
+  .column[data-col="done"] .card-name {
+    text-decoration: line-through;
+    color: var(--text-muted);
+  }
+
+  /* Suggested column cards */
+  .column[data-col="suggested"] .card {
+    background: #161b24;
+    border-color: #232d3e;
+  }
+
+  /* Drop placeholder */
+  .drop-placeholder {
+    height: 56px;
+    border: 2px dashed var(--accent);
+    border-radius: 10px;
+    background: rgba(79,142,247,.05);
+    pointer-events: none;
+    flex-shrink: 0;
+  }
+  .column[data-col="suggested"] .drop-placeholder {
+    border-color: var(--text-dim);
+    background: rgba(90,106,130,.05);
+  }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    padding: 32px 0;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 48px;
+  }
+  .footer a { color: var(--accent); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div>
+      <div class="badge">Automation Roadmap — Kanban</div>
+      <h1>Jason <span>Eggett</span> — Build Board</h1>
+      <div class="header-sub">
+        Drag cards between columns &nbsp;·&nbsp; Synced with Notion
+        <span class="sync-pill" id="sync-pill"><span class="sync-dot"></span><span id="sync-label">Loading</span></span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="refresh-btn" id="refresh-btn" title="Refresh from Notion">↻</button>
+      <a class="back-btn" href="ai-builder-plan.html">← Builder Plan</a>
+    </div>
+  </div>
+
+  <div class="board" id="board">
+
+    <div class="board-loading" id="board-loading">
+      <div class="spinner"></div>
+      Loading from Notion…
+    </div>
+
+    <div class="board-error" id="board-error"></div>
+
+    <div class="column" data-col="suggested">
+      <div class="col-header">
+        <span class="col-title">Suggested</span>
+        <span class="col-count" id="count-suggested">—</span>
+      </div>
+      <div class="col-cards" id="col-suggested"></div>
+    </div>
+
+    <div class="column" data-col="tobuild">
+      <div class="col-header">
+        <span class="col-title">To Build</span>
+        <span class="col-count" id="count-tobuild">—</span>
+      </div>
+      <div class="col-cards" id="col-tobuild"></div>
+    </div>
+
+    <div class="column" data-col="inprogress">
+      <div class="col-header">
+        <span class="col-title">In Progress</span>
+        <span class="col-count" id="count-inprogress">—</span>
+      </div>
+      <div class="col-cards" id="col-inprogress"></div>
+    </div>
+
+    <div class="column" data-col="done">
+      <div class="col-header">
+        <span class="col-title">Done</span>
+        <span class="col-count" id="count-done">—</span>
+      </div>
+      <div class="col-cards" id="col-done"></div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Automation Roadmap Kanban &nbsp;·&nbsp; Home Court Growth &nbsp;·&nbsp; April 2026<br>
+    <a href="ai-builder-plan.html">← Full Builder Plan</a>
+  </div>
+
+</div>
+<script>
+// ── Constants ───────────────────────────────────────────────
+const COL_TO_STATUS = {
+  suggested:  'Suggested',
+  tobuild:    'To Build',
+  inprogress: 'In Progress',
+  done:       'Done',
+};
+
+const PRIORITY_ORDER = { High: 0, Medium: 1, Low: 2 };
+
+const EMPTY_LABELS = {
+  suggested:  'Ideas from others<br>will appear here',
+  tobuild:    'Nothing queued yet',
+  inprogress: 'Drag a card here<br>when you start building',
+  done:       'Shipped automations<br>land here',
+};
+
+// ── State ───────────────────────────────────────────────────
+let cards = [];
+let dragCardId   = null;
+let dragSourceCol = null;
+let dropBeforeId  = null;
+let placeholder   = null;
+let patchInFlight = 0;
+
+// ── DOM refs ────────────────────────────────────────────────
+const syncPill    = document.getElementById('sync-pill');
+const syncLabel   = document.getElementById('sync-label');
+const boardLoader = document.getElementById('board-loading');
+const boardError  = document.getElementById('board-error');
+
+// ── Sync indicator ──────────────────────────────────────────
+function setSync(state, text) {
+  syncPill.className = 'sync-pill ' + state;
+  syncLabel.textContent = text;
+}
+
+// ── API ─────────────────────────────────────────────────────
+async function fetchRoadmap() {
+  boardLoader.classList.remove('hidden');
+  boardError.classList.remove('visible');
+  setSync('syncing', 'Loading…');
+  try {
+    const res = await fetch('/api/roadmap');
+    if (!res.ok) throw new Error(`Server returned ${res.status}`);
+    cards = await res.json();
+    renderBoard();
+    setSync('ok', 'Synced');
+  } catch (err) {
+    showError('Could not load from Notion: ' + err.message);
+    setSync('error', 'Error');
+  } finally {
+    boardLoader.classList.add('hidden');
+  }
+}
+
+async function patchStatus(cardId, newStatus) {
+  patchInFlight++;
+  setSync('syncing', 'Saving…');
+  try {
+    const res = await fetch('/api/roadmap', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: cardId, status: newStatus }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || `HTTP ${res.status}`);
+    }
+  } catch (err) {
+    // Revert: re-fetch ground truth from Notion
+    showError('Sync failed (' + err.message + '). Reverting…');
+    setSync('error', 'Error');
+    await fetchRoadmap();
+    return;
+  } finally {
+    patchInFlight--;
+  }
+  if (patchInFlight === 0) setSync('ok', 'Synced');
+}
+
+function showError(msg) {
+  boardError.textContent = msg;
+  boardError.classList.add('visible');
+  setTimeout(() => boardError.classList.remove('visible'), 6000);
+}
+
+// ── Render ──────────────────────────────────────────────────
+function cardsForCol(col) {
+  const status = COL_TO_STATUS[col];
+  return cards
+    .filter(c => c.status === status)
+    .sort((a, b) => (PRIORITY_ORDER[a.priority] ?? 9) - (PRIORITY_ORDER[b.priority] ?? 9));
+}
+
+function buildCard(card) {
+  const pClass = card.priority === 'High' ? 'p-high'
+               : card.priority === 'Medium' ? 'p-medium'
+               : card.priority === 'Low' ? 'p-low' : '';
+
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.draggable = true;
+  div.dataset.cardId = card.id;
+
+  div.innerHTML =
+    `<div class="card-name">${esc(card.name)}</div>` +
+    (card.description ? `<div class="card-desc">${esc(card.description)}</div>` : '') +
+    (pClass ? `<div class="card-footer"><span class="priority-badge ${pClass}"><span class="prio-dot"></span>${card.priority}</span></div>` : '');
+
+  div.addEventListener('dragstart', onDragStart);
+  div.addEventListener('dragend', onDragEnd);
+  return div;
+}
+
+function renderBoard() {
+  Object.keys(COL_TO_STATUS).forEach(col => {
+    const container = document.getElementById('col-' + col);
+    container.innerHTML = '';
+    const colCards = cardsForCol(col);
+
+    if (colCards.length === 0) {
+      const el = document.createElement('div');
+      el.className = 'col-empty';
+      el.innerHTML = EMPTY_LABELS[col];
+      container.appendChild(el);
+    } else {
+      colCards.forEach(c => container.appendChild(buildCard(c)));
+    }
+
+    document.getElementById('count-' + col).textContent = String(colCards.length);
+  });
+}
+
+function esc(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ── Drag ────────────────────────────────────────────────────
+function onDragStart(e) {
+  dragCardId    = this.dataset.cardId;
+  dragSourceCol = this.closest('[data-col]').dataset.col;
+  this.classList.add('is-dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', dragCardId);
+}
+
+function onDragEnd() {
+  this.classList.remove('is-dragging');
+  removePlaceholder();
+  document.querySelectorAll('.column').forEach(c => c.classList.remove('drag-over'));
+  dragCardId = dragSourceCol = dropBeforeId = null;
+}
+
+function removePlaceholder() {
+  if (placeholder?.parentNode) placeholder.parentNode.removeChild(placeholder);
+  placeholder = null;
+}
+
+function cardAfterCursor(container, y) {
+  return [...container.querySelectorAll('.card:not(.is-dragging)')].reduce((closest, card) => {
+    const offset = y - (card.getBoundingClientRect().top + card.getBoundingClientRect().height / 2);
+    return offset < 0 && offset > closest.offset ? { offset, element: card } : closest;
+  }, { offset: Number.NEGATIVE_INFINITY }).element ?? null;
+}
+
+function setupDropZones() {
+  document.querySelectorAll('.column').forEach(col => {
+
+    col.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      col.classList.add('drag-over');
+
+      const container = col.querySelector('.col-cards');
+      const after = cardAfterCursor(container, e.clientY);
+      dropBeforeId = after ? after.dataset.cardId : null;
+
+      removePlaceholder();
+      placeholder = document.createElement('div');
+      placeholder.className = 'drop-placeholder';
+
+      const empty = container.querySelector('.col-empty');
+      if (empty) empty.style.display = 'none';
+
+      after ? container.insertBefore(placeholder, after) : container.appendChild(placeholder);
+    });
+
+    col.addEventListener('dragleave', e => {
+      if (col.contains(e.relatedTarget)) return;
+      col.classList.remove('drag-over');
+      removePlaceholder();
+      if (cardsForCol(col.dataset.col).length === 0) {
+        const empty = col.querySelector('.col-empty');
+        if (empty) empty.style.display = '';
+      }
+    });
+
+    col.addEventListener('drop', e => {
+      e.preventDefault();
+      col.classList.remove('drag-over');
+      removePlaceholder();
+      if (!dragCardId) return;
+
+      const targetCol  = col.dataset.col;
+      const newStatus  = COL_TO_STATUS[targetCol];
+      const card = cards.find(c => c.id === dragCardId);
+      if (!card || card.status === newStatus) { renderBoard(); return; }
+
+      // Optimistic update then sync
+      card.status = newStatus;
+      renderBoard();
+      patchStatus(dragCardId, newStatus);
+    });
+  });
+}
+
+// ── Init ────────────────────────────────────────────────────
+document.getElementById('refresh-btn').addEventListener('click', fetchRoadmap);
+setupDropZones();
+fetchRoadmap();
+</script>
+</body>
+</html>

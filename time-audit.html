@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Audit — Jason Eggett | Home Court Growth</title>
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #161b24;
+    --surface2: #1e2535;
+    --border: #2a3347;
+    --accent: #4f8ef7;
+    --accent2: #7c5fe6;
+    --accent3: #38c9a4;
+    --warn: #f59c42;
+    --danger: #e05c5c;
+    --text: #e2e8f0;
+    --text-muted: #8896ab;
+    --text-dim: #5a6a82;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; font-size: 15px; line-height: 1.6; }
+  a { color: var(--accent); text-decoration: none; }
+
+  .page { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* Header */
+  .header { text-align: center; padding: 60px 0 48px; border-bottom: 1px solid var(--border); margin-bottom: 48px; }
+  .header .badge { display: inline-block; background: var(--accent2); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: 4px 12px; border-radius: 100px; margin-bottom: 20px; }
+  .header h1 { font-size: 38px; font-weight: 800; letter-spacing: -.02em; color: #fff; }
+  .header h1 span { color: var(--accent); }
+  .header .goal { margin-top: 16px; font-size: 18px; color: var(--text-muted); }
+  .header .goal strong { color: var(--accent3); font-weight: 600; }
+  .header .meta { margin-top: 10px; font-size: 13px; color: var(--text-dim); }
+
+  /* Section */
+  .section { margin-bottom: 56px; }
+  .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--accent); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  h2.section-head { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .section-sub { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+
+  /* Grid layouts */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  @media(max-width: 800px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+
+  /* Cards */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .card-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+  .card-value { font-size: 32px; font-weight: 800; color: #fff; line-height: 1; }
+  .card-value.accent { color: var(--accent); }
+  .card-value.green { color: var(--accent3); }
+  .card-value.warn { color: var(--warn); }
+  .card-value.danger { color: var(--danger); }
+  .card-sub { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+
+  /* Bar charts */
+  .bar-list { display: flex; flex-direction: column; gap: 10px; }
+  .bar-item { display: flex; align-items: center; gap: 12px; }
+  .bar-label { width: 190px; font-size: 13px; color: var(--text); flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { flex: 1; height: 10px; background: var(--surface2); border-radius: 100px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 100px; transition: width .3s; }
+  .bar-hrs { width: 46px; text-align: right; font-size: 13px; font-weight: 600; color: var(--text-muted); flex-shrink: 0; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-dim); font-weight: 700; padding: 0 12px 10px; border-bottom: 1px solid var(--border); }
+  td { padding: 11px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+  .tag { display: inline-block; padding: 2px 9px; border-radius: 100px; font-size: 11px; font-weight: 700; letter-spacing: .06em; }
+  .tag-blue { background: rgba(79,142,247,.15); color: var(--accent); }
+  .tag-green { background: rgba(56,201,164,.15); color: var(--accent3); }
+  .tag-purple { background: rgba(124,95,230,.15); color: #a58af0; }
+  .tag-warn { background: rgba(245,156,66,.15); color: var(--warn); }
+  .tag-danger { background: rgba(224,92,92,.15); color: var(--danger); }
+  .tag-gray { background: rgba(136,150,171,.1); color: var(--text-muted); }
+
+  /* Automation cards */
+  .auto-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-bottom: 16px; position: relative; overflow: hidden; }
+  .auto-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+  .auto-card.quick::before { background: var(--accent3); }
+  .auto-card.medium::before { background: var(--accent); }
+  .auto-card.big::before { background: var(--accent2); }
+  .auto-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; gap: 16px; }
+  .auto-card-title { font-size: 17px; font-weight: 700; color: #fff; }
+  .auto-card-outcome { font-size: 15px; color: var(--accent3); font-style: italic; margin-bottom: 16px; }
+  .auto-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width:700px) { .auto-card-grid { grid-template-columns: 1fr; } }
+  .auto-cell-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-dim); margin-bottom: 4px; }
+  .auto-cell-body { font-size: 13px; color: var(--text-muted); }
+  .auto-meta { display: flex; gap: 10px; flex-wrap: wrap; }
+  .effort-pill { padding: 3px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+  .effort-quick { background: rgba(56,201,164,.15); color: var(--accent3); }
+  .effort-medium { background: rgba(79,142,247,.15); color: var(--accent); }
+  .effort-big { background: rgba(124,95,230,.15); color: #a58af0; }
+  .hrs-pill { background: rgba(245,156,66,.12); color: var(--warn); padding: 3px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+
+  /* Diagnostic */
+  .diag-block { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+  .diag-item { display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+  .diag-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .diag-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .diag-head { font-weight: 600; color: #fff; margin-bottom: 4px; font-size: 15px; }
+  .diag-body { font-size: 13px; color: var(--text-muted); }
+  .diag-body strong { color: var(--text); }
+
+  /* Observation callouts */
+  .obs { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent2); border-radius: 0 12px 12px 0; padding: 18px 20px; margin-bottom: 12px; }
+  .obs-head { font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .obs-body { font-size: 14px; color: var(--text-muted); }
+  .obs-body strong { color: var(--text); }
+
+  /* Goal alignment */
+  .goal-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .goal-name { font-weight: 700; color: #fff; margin-bottom: 8px; }
+  .goal-time { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .goal-bar { flex: 1; height: 6px; background: var(--surface2); border-radius: 100px; overflow: hidden; }
+  .goal-bar-fill { height: 100%; border-radius: 100px; }
+  .goal-hrs { font-size: 13px; font-weight: 700; color: var(--text-muted); white-space: nowrap; }
+  .goal-note { font-size: 13px; color: var(--text-muted); }
+  .goal-note .flag { color: var(--warn); }
+  .goal-note .good { color: var(--accent3); }
+
+  /* Sources */
+  .source-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .source-row:last-child { border-bottom: none; }
+  .source-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green { background: var(--accent3); }
+  .dot-warn { background: var(--warn); }
+  .dot-gray { background: var(--text-dim); }
+  .source-name { font-weight: 600; color: #fff; width: 160px; flex-shrink: 0; font-size: 14px; }
+  .source-detail { font-size: 13px; color: var(--text-muted); }
+
+  /* Footer */
+  .footer { text-align: center; padding: 32px 0; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-dim); margin-top: 48px; }
+
+  /* Notice */
+  .notice { background: rgba(245,156,66,.08); border: 1px solid rgba(245,156,66,.25); border-radius: 10px; padding: 14px 18px; font-size: 13px; color: var(--warn); margin-bottom: 20px; }
+  .notice strong { color: #f5c96a; }
+
+  /* Day heatmap */
+  .day-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .day-row:last-child { border-bottom: none; }
+  .day-name { width: 100px; font-size: 13px; color: var(--text-muted); flex-shrink: 0; }
+  .day-track { flex: 1; height: 22px; background: var(--surface2); border-radius: 6px; overflow: hidden; position: relative; }
+  .day-bar { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; font-weight: 700; color: rgba(255,255,255,.7); }
+  .day-ct { width: 80px; text-align: right; font-size: 13px; color: var(--text-muted); flex-shrink: 0; }
+
+  .kv { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .kv:last-child { border-bottom: none; }
+  .kv-k { color: var(--text-muted); }
+  .kv-v { font-weight: 600; color: #fff; }
+
+  .rank-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--surface2); font-size: 11px; font-weight: 800; color: var(--accent); flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="badge">AI Builder Automation Portfolio</div>
+    <h1>Jason <span>Eggett</span> — Time Audit</h1>
+    <div class="goal">#1 Goal: <strong>Scale Home Court Growth through AI automation — get more client results without more manual hours</strong></div>
+    <div class="meta">April 21, 2026 &nbsp;·&nbsp; 14 weekdays analyzed &nbsp;·&nbsp; Apr 2–21, 2026</div>
+  </div>
+
+  <div class="notice">
+    <strong>Note:</strong> No CLAUDE.md was found in this project. Goals above and goal-alignment analysis are inferred from your calendar events. Connect a CLAUDE.md with your explicit goals, role, and priorities for a sharper future audit.
+  </div>
+
+  <!-- ─── SECTION 1: HOW I ACTUALLY SPEND MY TIME ─── -->
+  <div class="section">
+    <div class="section-title">Section 1</div>
+    <h2 class="section-head">How I Actually Spend My Time</h2>
+    <p class="section-sub">Calendar-based time buckets across 14 weekdays (Apr 2–21, 2026). Chrome, Windows app usage, email, and Slack data not available — see Data Sources section.</p>
+
+    <!-- Top stat cards -->
+    <div class="grid-4" style="margin-bottom:24px;">
+      <div class="card">
+        <div class="card-label">Total Calendar Hours</div>
+        <div class="card-value accent">99</div>
+        <div class="card-sub">over 14 weekdays</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Events Logged</div>
+        <div class="card-value">108</div>
+        <div class="card-sub">all types</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Avg Events / Day</div>
+        <div class="card-value warn">7.7</div>
+        <div class="card-sub">context switches</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Meeting Hours (1:1 + External)</div>
+        <div class="card-value green">11.5</div>
+        <div class="card-sub">11.6% of total time</div>
+      </div>
+    </div>
+
+    <!-- Time buckets bar chart -->
+    <div class="card" style="margin-bottom:24px;">
+      <div class="card-label" style="margin-bottom:18px;">Time Buckets — Hours Over 14 Weekdays</div>
+      <div class="bar-list">
+        <div class="bar-item">
+          <div class="bar-label">AI Learning &amp; Setup</div>
+          <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent2);"></div></div>
+          <div class="bar-hrs" style="color:var(--accent2);">16.0h</div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-label">TBIZ &amp; One Comma Club</div>
+          <div class="bar-track"><div class="bar-fill" style="width:89%;background:var(--warn);"></div></div>
+          <div class="bar-hrs" style="color:var(--warn);">14.2h</div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-label">Driving / Commuting</div>
+          <div class="bar-track"><div class="bar-fill" style="width:64%;background:var(--danger);"></div></div>
+          <div class="bar-hrs" style="color:var(--danger);">10.2h</div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-label">Client Calls &amp; Demos</div>
+          <div class="bar-track"><div class="bar-fill" style="width:63%;background:var(--accent);"></div></div>
+          <div class="bar-hrs" style="color:var(--accent);">10.0h</div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-label">Admin (Taxes, Billing)</div>
+          <div class="bar-track"><div class="bar-fill" style="width:49%;background:#c084fc;"></div></div>
+          <div class="bar-hrs" style="color:#c084fc;">7.8h</div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-label">SEO &amp; Content Work</div>
+          <div class="bar-track"><div class="bar-fill" style="width:47%;background:var(--accent3);"></div></div>
+          <div class="bar-hrs" style="color:var(--accent3);">7.5h</div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-label">Team Meetings &amp; 1:1s</div>
+          <div class="bar-track"><div class="bar-fill" style="width:38%;background:#60a5fa;"></div></div>
+          <div class="bar-hrs" style="color:#60a5fa;">6.0h</div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-label">Ready Set Launch (Client Events)</div>
+          <div class="bar-track"><div class="bar-fill" style="width:25%;background:#f472b6;"></div></div>
+          <div class="bar-hrs" style="color:#f472b6;">4.0h</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Meeting breakdown -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label" style="margin-bottom:14px;">Meeting Breakdown by Type</div>
+        <table>
+          <thead><tr><th>Type</th><th>Events</th><th>Hours</th></tr></thead>
+          <tbody>
+            <tr><td>Solo / Calendar blocks</td><td>88</td><td>87.5h</td></tr>
+            <tr><td>Client 1:1 Reviews</td><td>6</td><td>2.5h</td></tr>
+            <tr><td>Staff 1:1s</td><td>10</td><td>4.0h</td></tr>
+            <tr><td>External (RSL, SEO team)</td><td>4</td><td>5.0h</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-label" style="margin-bottom:14px;">Recurring Meetings</div>
+        <div class="kv"><span class="kv-k">Web Dev Weekly Meeting</span><span class="kv-v">3× Mon 12:30pm</span></div>
+        <div class="kv"><span class="kv-k">Appt Setter Team Meeting</span><span class="kv-v">3× Fri 11:30am</span></div>
+        <div class="kv"><span class="kv-k">Weekly SEO Review (PH team)</span><span class="kv-v">2× Mon 10:45pm PT</span></div>
+        <div class="kv"><span class="kv-k">AI Builder Program / Sessions</span><span class="kv-v">2× (ongoing)</span></div>
+        <div class="kv"><span class="kv-k">One Comma Club</span><span class="kv-v">4× (Apr 6–9, 2.5h ea)</span></div>
+      </div>
+    </div>
+
+    <!-- Day-by-day heatmap -->
+    <div class="card" style="margin-top:16px;">
+      <div class="card-label" style="margin-bottom:18px;">Daily Load — Events &amp; Hours</div>
+      <div>
+        <div class="day-row"><div class="day-name">Apr 2 (Thu)</div><div class="day-track"><div class="day-bar" style="width:42%;background:rgba(79,142,247,.35);">7 events</div></div><div class="day-ct">5.0h</div></div>
+        <div class="day-row"><div class="day-name">Apr 3 (Fri)</div><div class="day-track"><div class="day-bar" style="width:73%;background:rgba(79,142,247,.35);">11 events</div></div><div class="day-ct">8.8h</div></div>
+        <div class="day-row"><div class="day-name">Apr 6 (Mon)</div><div class="day-track"><div class="day-bar" style="width:58%;background:rgba(79,142,247,.35);">10 events</div></div><div class="day-ct">7.0h</div></div>
+        <div class="day-row"><div class="day-name">Apr 7 (Tue)</div><div class="day-track"><div class="day-bar" style="width:65%;background:rgba(79,142,247,.35);">4 events</div></div><div class="day-ct">7.8h</div></div>
+        <div class="day-row"><div class="day-name">Apr 8 (Wed)</div><div class="day-track"><div class="day-bar" style="width:38%;background:rgba(56,201,164,.25);">3 events</div></div><div class="day-ct">4.5h ✓ lightest</div></div>
+        <div class="day-row"><div class="day-name">Apr 9 (Thu)</div><div class="day-track"><div class="day-bar" style="width:65%;background:rgba(79,142,247,.35);">8 events</div></div><div class="day-ct">7.8h</div></div>
+        <div class="day-row"><div class="day-name">Apr 10 (Fri)</div><div class="day-track"><div class="day-bar" style="width:42%;background:rgba(79,142,247,.35);">5 events</div></div><div class="day-ct">5.0h</div></div>
+        <div class="day-row"><div class="day-name">Apr 13 (Mon)</div><div class="day-track"><div class="day-bar" style="width:25%;background:rgba(56,201,164,.25);">6 events</div></div><div class="day-ct">3.0h</div></div>
+        <div class="day-row"><div class="day-name">Apr 14 (Tue)</div><div class="day-track"><div class="day-bar" style="width:57%;background:rgba(79,142,247,.35);">7 events</div></div><div class="day-ct">6.8h</div></div>
+        <div class="day-row"><div class="day-name">Apr 15 (Wed)</div><div class="day-track"><div class="day-bar" style="width:40%;background:rgba(79,142,247,.35);">11 events</div></div><div class="day-ct">4.8h</div></div>
+        <div class="day-row"><div class="day-name">Apr 16 (Thu)</div><div class="day-track"><div class="day-bar" style="width:48%;background:rgba(79,142,247,.35);">7 events</div></div><div class="day-ct">5.8h</div></div>
+        <div class="day-row"><div class="day-name">Apr 17 (Fri)</div><div class="day-track"><div class="day-bar" style="width:83%;background:rgba(245,156,66,.3);">7 events</div></div><div class="day-ct">10.0h</div></div>
+        <div class="day-row"><div class="day-name">Apr 20 (Mon)</div><div class="day-track"><div class="day-bar" style="width:92%;background:rgba(224,92,92,.35);">12 events ⚠</div></div><div class="day-ct">11.0h</div></div>
+        <div class="day-row"><div class="day-name">Apr 21 (Tue) today</div><div class="day-track"><div class="day-bar" style="width:100%;background:rgba(224,92,92,.35);">10 events ⚠</div></div><div class="day-ct">12.0h</div></div>
+      </div>
+    </div>
+
+    <!-- Client work detail -->
+    <div class="card" style="margin-top:16px;">
+      <div class="card-label" style="margin-bottom:14px;">Active Clients Touched This Period</div>
+      <table>
+        <thead><tr><th>Client</th><th>Activity</th><th>Time</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Jade (Leads)</strong></td><td>Call Jade's Leads (outbound dialing)</td><td>4.0h</td></tr>
+          <tr><td><strong>Mike's Plumbing</strong></td><td>Maps strategy update + video + Sean briefing</td><td>1.3h</td></tr>
+          <tr><td><strong>Awesome Water</strong></td><td>Email follow-up (multiple attempts)</td><td>0.8h</td></tr>
+          <tr><td><strong>Absolute Plumbing</strong></td><td>Online Presence Review + follow-up call</td><td>0.8h</td></tr>
+          <tr><td><strong>Express Services (Kelcie)</strong></td><td>Sync call</td><td>0.5h</td></tr>
+          <tr><td><strong>EVS Mechanical</strong></td><td>Blog + outreach call</td><td>0.8h</td></tr>
+          <tr><td><strong>Guillen Plumbing</strong></td><td>Online Presence Review + call</td><td>0.8h</td></tr>
+          <tr><td><strong>Safe Plumbing</strong></td><td>Online Presence Review</td><td>0.5h</td></tr>
+          <tr><td><strong>Texas Boys / A Plus / Master Plumber</strong></td><td>Brief outreach calls</td><td>0.8h</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 2: KEY DIAGNOSTICS ─── -->
+  <div class="section">
+    <div class="section-title">Section 2</div>
+    <h2 class="section-head">Key Diagnostics</h2>
+
+    <div class="grid-4" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-label">Avg Context Switches / Day</div>
+        <div class="card-value warn">7.7</div>
+        <div class="card-sub">calendar events/day</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Worst Context-Switch Day</div>
+        <div class="card-value danger">Apr 20</div>
+        <div class="card-sub">12 events, 11 hours</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Meeting vs Deep Work</div>
+        <div class="card-value accent">88 / 12</div>
+        <div class="card-sub">% solo blocks vs meetings</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Reactive vs Proactive</div>
+        <div class="card-value">~60 / 40</div>
+        <div class="card-sub">estimate (no email data)</div>
+      </div>
+    </div>
+
+    <div class="diag-block">
+      <!-- Time drain 1 -->
+      <div class="diag-item">
+        <div class="diag-icon" style="background:rgba(224,92,92,.15);">🚗</div>
+        <div>
+          <div class="diag-head">Time Drain #1 — Driving: 10.2 hours in 14 days</div>
+          <div class="diag-body">You're physically covering Porterville ↔ Lindsay ↔ Tulare in-person constantly. That's <strong>45+ minutes of lost productivity daily</strong> when you have an in-person day. It's time that can't be recovered — calls, demos, or SEO reviews could often happen remotely.</div>
+        </div>
+      </div>
+      <!-- Time drain 2 -->
+      <div class="diag-item">
+        <div class="diag-icon" style="background:rgba(245,156,66,.15);">📞</div>
+        <div>
+          <div class="diag-head">Time Drain #2 — Manual Client Outreach: 10+ hours</div>
+          <div class="diag-body">Scattered call blocks fill your mornings and afternoons — "Call Customers" (2h), "Call Jade's Leads" (4h today), "Call [specific client]" repeated multiple times per week. <strong>This is high-skill time going to low-skill execution.</strong> The pattern is identical every week: you are your own BDR.</div>
+        </div>
+      </div>
+      <!-- Time drain 3 -->
+      <div class="diag-item">
+        <div class="diag-icon" style="background:rgba(124,95,230,.15);">📋</div>
+        <div>
+          <div class="diag-head">Time Drain #3 — Admin &amp; One Comma Club: 22 hours</div>
+          <div class="diag-body">Taxes consumed <strong>5+ separate calendar sessions</strong> over the period. One Comma Club ran 4 consecutive days × 2.5 hours = 10 hours in one week. While valuable for business development, these pulled 22 hours of calendar time from client and growth work in 14 days.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sharp observations -->
+    <div style="margin-top:20px;">
+      <div class="obs">
+        <div class="obs-head">Observation 1: AI time is your #1 investment — and that's correct</div>
+        <div class="obs-body">16 hours on Claude Code, AI Builder Program, AI day, and AI setups is more than client calls and more than SEO work. This is <strong>not a distraction — it's the right bet</strong>. The question is whether the tools you're building are yet reducing manual hours elsewhere, or still in setup mode.</div>
+      </div>
+      <div class="obs">
+        <div class="obs-head">Observation 2: Your clients get inconsistent attention — volume not rhythm</div>
+        <div class="obs-body">Jade got 4 hours in one burst today. Awesome Water got emailed multiple times with no confirmed response. Absolute Plumbing got a 30-min review + one follow-up call. <strong>There's no consistent weekly rhythm per client</strong> — attention spikes and disappears. An automated weekly touchpoint per client would be more effective than burst sessions.</div>
+      </div>
+      <div class="obs">
+        <div class="obs-head">Observation 3: Your team is on autopilot — and that's a risk</div>
+        <div class="obs-body">The appointment setter meeting is 30 minutes weekly. SEO team review is at 10:45pm Pacific (late-night for you). Web dev check-in is 30 minutes. <strong>Your team meetings total 6 hours in 14 days</strong> — low for a team with multiple full-time staff. Either they're fully self-managed (great) or flying blind (risk). No data in the calendar shows a feedback loop on output quality.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 3: GOAL ALIGNMENT ─── -->
+  <div class="section">
+    <div class="section-title">Section 3</div>
+    <h2 class="section-head">Goal Alignment</h2>
+    <p class="section-sub">Goals inferred from calendar patterns — no CLAUDE.md on file. Add one to sharpen future audits.</p>
+
+    <div class="grid-2">
+      <div class="goal-item">
+        <div class="goal-name">Scale Home Court Growth (agency revenue)</div>
+        <div class="goal-time">
+          <div class="goal-bar"><div class="goal-bar-fill" style="width:50%;background:var(--accent);"></div></div>
+          <div class="goal-hrs">~10h direct</div>
+        </div>
+        <div class="goal-note">Client calls and demos are present, but <span class="flag">most are reactive, one-off, or manual outreach.</span> No visible prospecting system. "Call Jade's Leads" (4h) is high-effort, low-leverage.</div>
+      </div>
+      <div class="goal-item">
+        <div class="goal-name">Build AI automation systems</div>
+        <div class="goal-time">
+          <div class="goal-bar"><div class="goal-bar-fill" style="width:100%;background:var(--accent2);"></div></div>
+          <div class="goal-hrs">16h</div>
+        </div>
+        <div class="goal-note"><span class="good">Strongest alignment. Highest single bucket.</span> Claude Code, AI Builder Program L2, AI Sessions. The risk: build time isn't yet converting to reclaimed hours elsewhere.</div>
+      </div>
+      <div class="goal-item">
+        <div class="goal-name">Deliver client results (SEO, Maps, web presence)</div>
+        <div class="goal-time">
+          <div class="goal-bar"><div class="goal-bar-fill" style="width:47%;background:var(--accent3);"></div></div>
+          <div class="goal-hrs">7.5h</div>
+        </div>
+        <div class="goal-note">SEO team meetings, blog creation, Maps Pack strategy sessions present. <span class="flag">But you are writing blogs, recording videos, and briefing Sean manually</span> — all AI-automatable today.</div>
+      </div>
+      <div class="goal-item">
+        <div class="goal-name">Build/run Ready Set Launch program</div>
+        <div class="goal-time">
+          <div class="goal-bar"><div class="goal-bar-fill" style="width:25%;background:#f472b6;"></div></div>
+          <div class="goal-hrs">4h</div>
+        </div>
+        <div class="goal-note">Two RSL events in Tulare (Graduation + ongoing session). <span class="flag">No visible prep, content creation, or follow-up time in calendar</span> — either very efficient or under-resourced.</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <div class="card-label" style="margin-bottom:12px;">What's eating time that doesn't move the needle</div>
+      <div class="kv"><span class="kv-k">Taxes (multi-session admin)</span><span class="kv-v" style="color:var(--danger);">~5h — now done, but recurs</span></div>
+      <div class="kv"><span class="kv-k">Manual call-by-call outreach</span><span class="kv-v" style="color:var(--danger);">10h — should be 2h with automation</span></div>
+      <div class="kv"><span class="kv-k">Driving to in-person meetings</span><span class="kv-v" style="color:var(--warn);">10.2h — partially necessary, partially reducible</span></div>
+      <div class="kv"><span class="kv-k">Stripe subscription updates (manual)</span><span class="kv-v" style="color:var(--warn);">0.8h/week — 100% automatable</span></div>
+      <div class="kv"><span class="kv-k">Blog drafting by hand</span><span class="kv-v" style="color:var(--warn);">~2h/week — 80% automatable</span></div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <div class="card-label" style="margin-bottom:12px;">What should be happening that isn't in the data</div>
+      <div class="kv"><span class="kv-k">Systematic lead nurture sequences</span><span class="kv-v" style="color:var(--text-muted);">Not visible — all outreach is one-off</span></div>
+      <div class="kv"><span class="kv-k">Weekly client performance digest</span><span class="kv-v" style="color:var(--text-muted);">Not visible — reviews are meeting-only</span></div>
+      <div class="kv"><span class="kv-k">Team output tracking / QA loop</span><span class="kv-v" style="color:var(--text-muted);">Not visible — check-ins exist, reviews don't</span></div>
+      <div class="kv"><span class="kv-k">Prospect pipeline management</span><span class="kv-v" style="color:var(--text-muted);">Not visible — no CRM or pipeline blocks</span></div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 4: AUTOMATION OPPORTUNITIES ─── -->
+  <div class="section">
+    <div class="section-title">Section 4</div>
+    <h2 class="section-head">Automation Opportunities</h2>
+    <p class="section-sub">Ranked by impact: hours reclaimed × how directly it ties to scaling Home Court Growth. All estimates are drafts.</p>
+
+    <!-- Opportunity 1 -->
+    <div class="auto-card big">
+      <div class="auto-card-header">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+            <span class="rank-num">1</span>
+            <div class="auto-card-title">AI-Powered Lead Outreach &amp; Follow-Up System</div>
+          </div>
+          <div class="auto-meta">
+            <span class="effort-pill effort-big">Big Build</span>
+            <span class="hrs-pill">⏱ 4–5 hrs / week reclaimed</span>
+          </div>
+        </div>
+      </div>
+      <div class="auto-card-outcome">"New leads get personalized follow-up sequences automatically — I focus on closing, not chasing."</div>
+      <div class="auto-card-grid">
+        <div>
+          <div class="auto-cell-label">What's Happening Today</div>
+          <div class="auto-cell-body">You spent 4 hours today calling Jade's leads. Multiple "Call Customers" blocks (1–2h each) fill your afternoons. Every follow-up is a manual phone call you personally make — you are running an outbound BDR function yourself, at $X/hour.</div>
+        </div>
+        <div>
+          <div class="auto-cell-label">What the Automated Version Looks Like</div>
+          <div class="auto-cell-body">Lead comes in via form/referral → AI agent sends personalized SMS/email intro → waits → follows up at Day 2, 5, 10 with context-aware messages → surfaces hot leads to your phone with a one-tap "call now" notification. You only talk to interested prospects.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Opportunity 2 -->
+    <div class="auto-card medium">
+      <div class="auto-card-header">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+            <span class="rank-num">2</span>
+            <div class="auto-card-title">Weekly Client Performance Digest</div>
+          </div>
+          <div class="auto-meta">
+            <span class="effort-pill effort-medium">Medium Lift</span>
+            <span class="hrs-pill">⏱ 2–3 hrs / week reclaimed</span>
+          </div>
+        </div>
+      </div>
+      <div class="auto-card-outcome">"Every client gets a weekly performance update without me touching it, and my reviews become 10-minute decisions instead of 30-minute briefings."</div>
+      <div class="auto-card-grid">
+        <div>
+          <div class="auto-cell-label">What's Happening Today</div>
+          <div class="auto-cell-body">Your "Online Presence Review" meetings with Absolute Plumbing, Guillen, and Safe Plumbing are 30-min sessions where you manually share updates. You also briefed Sean on Mike's Plumbing strategy separately (45 min). No automated reporting pipeline visible.</div>
+        </div>
+        <div>
+          <div class="auto-cell-label">What the Automated Version Looks Like</div>
+          <div class="auto-cell-body">Every Friday, an AI agent pulls rank data, GBP impressions, and call tracking → generates a plain-English summary email to each client (on your behalf) → you review a 1-page internal digest Monday morning before any calls. Reviews become "here's what changed" not "let me look this up."</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Opportunity 3 -->
+    <div class="auto-card quick">
+      <div class="auto-card-header">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+            <span class="rank-num">3</span>
+            <div class="auto-card-title">AI SEO Blog Drafting Pipeline</div>
+          </div>
+          <div class="auto-meta">
+            <span class="effort-pill effort-quick">Quick Win</span>
+            <span class="hrs-pill">⏱ 2–3 hrs / week reclaimed</span>
+          </div>
+        </div>
+      </div>
+      <div class="auto-card-outcome">"Blog content for all clients goes live every week without me writing or recording anything."</div>
+      <div class="auto-card-grid">
+        <div>
+          <div class="auto-cell-label">What's Happening Today</div>
+          <div class="auto-cell-body">"Blog for EVS Mechanical" (30 min), "record video for JADE V on Mike's Plumbing and getting better Maps Pack rankings" (30 min), "Enzo's instagram" (60 min) — you or your team are manually creating SEO content per client, per week.</div>
+        </div>
+        <div>
+          <div class="auto-cell-label">What the Automated Version Looks Like</div>
+          <div class="auto-cell-body">Claude agent receives weekly keyword targets per client → drafts 2–3 blogs + social captions → posts to a Google Doc for 5-minute human review → approved content auto-posts via CMS API. Your SEO team reviews, not creates.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Opportunity 4 -->
+    <div class="auto-card quick">
+      <div class="auto-card-header">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+            <span class="rank-num">4</span>
+            <div class="auto-card-title">Appointment Setter Daily Activity Digest</div>
+          </div>
+          <div class="auto-meta">
+            <span class="effort-pill effort-quick">Quick Win</span>
+            <span class="hrs-pill">⏱ 1.5 hrs / week reclaimed</span>
+          </div>
+        </div>
+      </div>
+      <div class="auto-card-outcome">"I know exactly what my appointment setters did today without a meeting or a Slack check-in."</div>
+      <div class="auto-card-grid">
+        <div>
+          <div class="auto-cell-label">What's Happening Today</div>
+          <div class="auto-cell-body">Weekly 30-min team meeting every Friday (Appt Setter Weekly Meeting) is your primary oversight window. Between meetings, setter performance is a black box unless you're actively checking. Late-night SEO team review (10:45pm PT) signals timezone friction.</div>
+        </div>
+        <div>
+          <div class="auto-cell-label">What the Automated Version Looks Like</div>
+          <div class="auto-cell-body">Setters log calls/outcomes in a shared sheet → 6pm daily, AI agent generates a summary (calls made, appointments booked, top objections, flags) → sent to your phone as a text. Weekly meeting becomes a 10-min strategy session, not a status report.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Opportunity 5 -->
+    <div class="auto-card quick">
+      <div class="auto-card-header">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+            <span class="rank-num">5</span>
+            <div class="auto-card-title">Demo Prep Auto-Generator</div>
+          </div>
+          <div class="auto-meta">
+            <span class="effort-pill effort-quick">Quick Win</span>
+            <span class="hrs-pill">⏱ 1 hr / week reclaimed</span>
+          </div>
+        </div>
+      </div>
+      <div class="auto-card-outcome">"Every sales demo starts with a custom brief already in my hands — I don't prepare, I just show up."</div>
+      <div class="auto-card-grid">
+        <div>
+          <div class="auto-cell-label">What's Happening Today</div>
+          <div class="auto-cell-body">"Demo Prep" appears as a recurring 30-min block before client calls (Apr 2, Apr 9, Apr 13). It's manual — you're researching the prospect, building talking points, and reviewing their online presence each time.</div>
+        </div>
+        <div>
+          <div class="auto-cell-label">What the Automated Version Looks Like</div>
+          <div class="auto-cell-body">You add a prospect's business name to a form → AI agent pulls GBP data, Maps Pack ranking, competitor analysis, website score, and 3 key gaps → generates a one-page pre-call brief → lands in your inbox 1 hour before the demo. Zero prep time.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Opportunity 6 -->
+    <div class="auto-card medium">
+      <div class="auto-card-header">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+            <span class="rank-num">6</span>
+            <div class="auto-card-title">Stripe Subscription Monitoring &amp; Billing Automation</div>
+          </div>
+          <div class="auto-meta">
+            <span class="effort-pill effort-medium">Medium Lift</span>
+            <span class="hrs-pill">⏱ 0.5–1 hr / week reclaimed</span>
+          </div>
+        </div>
+      </div>
+      <div class="auto-card-outcome">"Billing issues surface themselves — I'm never manually reconciling subscriptions or chasing payment problems."</div>
+      <div class="auto-card-grid">
+        <div>
+          <div class="auto-cell-label">What's Happening Today</div>
+          <div class="auto-cell-body">"Update Stripe Subscriptions" appeared as a 45-min calendar block (Apr 20). Manual subscription management for an agency with 10+ clients creates fragile billing state — one missed update = wrong charge or churn.</div>
+        </div>
+        <div>
+          <div class="auto-cell-label">What the Automated Version Looks Like</div>
+          <div class="auto-cell-body">Stripe webhook → AI monitors subscription events → flags cancellations, failed payments, or upgrades → sends you a daily 3-line summary and auto-handles routine cases (dunning, payment retry). You touch billing only for exceptions.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 5: DATA SOURCES ─── -->
+  <div class="section">
+    <div class="section-title">Section 5</div>
+    <h2 class="section-head">Data Sources</h2>
+
+    <div class="card">
+      <div class="source-row">
+        <div class="source-dot dot-green"></div>
+        <div class="source-name">Google Calendar</div>
+        <div class="source-detail"><strong>✓ Used</strong> — Apr 2–21, 2026 (14 weekdays). 108 events analyzed, filtered to weekdays, excluding cancelled and all-day events. <em>Primary data source for this audit.</em></div>
+      </div>
+      <div class="source-row">
+        <div class="source-dot dot-warn"></div>
+        <div class="source-name">Chrome History</div>
+        <div class="source-detail"><strong>Partial</strong> — History DB copied successfully (Default profile). Could not query: Python not installed and sqlite3.exe not available on this machine. To unlock: install Python (<code>winget install Python.Python.3</code>) or sqlite3 CLI.</div>
+      </div>
+      <div class="source-row">
+        <div class="source-dot dot-warn"></div>
+        <div class="source-name">Windows App Usage</div>
+        <div class="source-detail"><strong>Not available</strong> — ActivitiesCache.db not found in ConnectedDevicesPlatform. Windows Timeline is likely disabled on this machine. Enable at Settings → Privacy &amp; Security → Activity History to capture future app usage.</div>
+      </div>
+      <div class="source-row">
+        <div class="source-dot dot-gray"></div>
+        <div class="source-name">Email (Gmail)</div>
+        <div class="source-detail"><strong>Not connected</strong> — Gmail MCP not installed. Would add sent/received pattern analysis, top senders, and approval bottleneck detection. Connect at claude.ai → Settings → Connectors (under 2 minutes).</div>
+      </div>
+      <div class="source-row">
+        <div class="source-dot dot-gray"></div>
+        <div class="source-name">Slack</div>
+        <div class="source-detail"><strong>Not connected</strong> — Slack MCP not installed. Would reveal channel attention patterns, who messages you most, and what you chase vs. approve. Connect at claude.ai → Settings → Connectors.</div>
+      </div>
+      <div class="source-row">
+        <div class="source-dot dot-warn"></div>
+        <div class="source-name">CLAUDE.md</div>
+        <div class="source-detail"><strong>Not found</strong> — No project context file exists. Goals and role inferred from calendar events. Create a CLAUDE.md with your goals, role, and priorities to sharpen all future analyses.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Time Audit — April 21, 2026 &nbsp;|&nbsp; Part of Jason Eggett's AI Builder Automation Portfolio<br>
+    <span style="color:var(--text-dim);font-size:12px;">Data sources: Google Calendar (primary). Chrome, app usage, email, Slack pending connection.</span>
+  </div>
+
+</div>
+</body>
+</html>

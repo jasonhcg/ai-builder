@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Builder Plan — Jason Eggett | Home Court Growth</title>
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #161b24;
+    --surface2: #1e2535;
+    --border: #2a3347;
+    --accent: #4f8ef7;
+    --accent2: #7c5fe6;
+    --accent3: #38c9a4;
+    --warn: #f59c42;
+    --danger: #e05c5c;
+    --text: #e2e8f0;
+    --text-muted: #8896ab;
+    --text-dim: #5a6a82;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; font-size: 15px; line-height: 1.6; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .page { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* Header */
+  .header { text-align: center; padding: 60px 0 48px; border-bottom: 1px solid var(--border); margin-bottom: 48px; }
+  .header .badge { display: inline-block; background: var(--accent2); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: 4px 12px; border-radius: 100px; margin-bottom: 20px; }
+  .header h1 { font-size: 38px; font-weight: 800; letter-spacing: -.02em; color: #fff; }
+  .header h1 span { color: var(--accent); }
+  .header .goal { margin-top: 16px; font-size: 18px; color: var(--text-muted); }
+  .header .goal strong { color: var(--accent3); font-weight: 600; }
+  .header .meta { margin-top: 10px; font-size: 13px; color: var(--text-dim); }
+
+  /* Section */
+  .section { margin-bottom: 56px; }
+  .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--accent); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  h2.section-head { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .section-sub { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+
+  /* Grids */
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  @media(max-width: 800px) { .grid-3 { grid-template-columns: 1fr; } }
+
+  /* Generic card */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
+
+  /* Insight cards */
+  .insight-card { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent2); border-radius: 0 12px 12px 0; padding: 20px 22px; margin-bottom: 12px; }
+  .insight-num { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--accent2); margin-bottom: 6px; }
+  .insight-head { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .insight-body { font-size: 14px; color: var(--text-muted); }
+  .insight-body strong { color: var(--text); }
+  .insight-card.green { border-left-color: var(--accent3); }
+  .insight-card.green .insight-num { color: var(--accent3); }
+  .insight-card.warn { border-left-color: var(--warn); }
+  .insight-card.warn .insight-num { color: var(--warn); }
+
+  /* Build cards */
+  .build-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 26px; margin-bottom: 16px; position: relative; overflow: hidden; }
+  .build-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+  .build-card.quick::before { background: var(--accent3); }
+  .build-card.medium::before { background: var(--accent); }
+  .build-card.big::before { background: var(--accent2); }
+
+  .build-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 14px; }
+  .build-card-rank { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--surface2); font-size: 12px; font-weight: 800; color: var(--accent); flex-shrink: 0; }
+  .build-card-title { font-size: 17px; font-weight: 700; color: #fff; }
+  .build-card-status { display: inline-flex; align-items: center; gap: 6px; background: var(--surface2); border: 1px solid var(--border); border-radius: 100px; padding: 4px 12px; font-size: 11px; font-weight: 700; color: var(--text-dim); white-space: nowrap; flex-shrink: 0; }
+  .build-card-status .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-dim); }
+
+  .build-card-outcome { font-size: 15px; color: var(--accent3); font-style: italic; margin-bottom: 18px; line-height: 1.5; }
+
+  .build-card-body { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+  @media(max-width:700px) { .build-card-body { grid-template-columns: 1fr; } }
+  .build-cell-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-dim); margin-bottom: 5px; }
+  .build-cell-text { font-size: 13px; color: var(--text-muted); line-height: 1.55; }
+
+  .build-card-footer { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; padding-top: 16px; border-top: 1px solid var(--border); }
+  .pill { padding: 4px 13px; border-radius: 100px; font-size: 12px; font-weight: 700; }
+  .pill-green { background: rgba(56,201,164,.15); color: var(--accent3); }
+  .pill-blue { background: rgba(79,142,247,.15); color: var(--accent); }
+  .pill-purple { background: rgba(124,95,230,.15); color: #a58af0; }
+  .pill-warn { background: rgba(245,156,66,.12); color: var(--warn); }
+
+  /* Sprint placeholder cards */
+  .sprint-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  @media(max-width:900px) { .sprint-grid { grid-template-columns: 1fr 1fr; } }
+  @media(max-width:500px) { .sprint-grid { grid-template-columns: 1fr; } }
+
+  .sprint-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; opacity: 0.42; position: relative; }
+  .sprint-card .sprint-label { font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px; }
+  .sprint-card .sprint-name { font-size: 14px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; line-height: 1.4; }
+  .sprint-card .sprint-coming { font-size: 12px; color: var(--text-dim); margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); font-style: italic; }
+  .sprint-card .sprint-icon { font-size: 22px; margin-bottom: 10px; }
+
+  /* S1 active card */
+  .sprint-s1 { background: var(--surface); border: 1px solid var(--accent2); border-radius: 12px; padding: 20px; position: relative; }
+  .sprint-s1::after { content: 'NOW'; position: absolute; top: 12px; right: 12px; font-size: 9px; font-weight: 800; letter-spacing: .12em; background: var(--accent2); color: #fff; padding: 2px 8px; border-radius: 100px; }
+  .sprint-s1 .sprint-label { font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--accent2); margin-bottom: 10px; }
+  .sprint-s1 .sprint-name { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 8px; line-height: 1.4; }
+  .sprint-s1 .sprint-icon { font-size: 22px; margin-bottom: 10px; }
+  .sprint-s1 .sprint-done { font-size: 12px; color: var(--accent3); margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); font-weight: 600; }
+
+  /* Footer */
+  .footer { text-align: center; padding: 32px 0; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-dim); margin-top: 48px; }
+
+  /* Audit link banner */
+  .audit-link { display: flex; align-items: center; justify-content: space-between; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-bottom: 28px; gap: 12px; }
+  .audit-link-text { font-size: 14px; color: var(--text-muted); }
+  .audit-link-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; transition: border-color .15s; }
+  .audit-link-btn:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ─── HEADER ─── -->
+  <div class="header">
+    <div class="badge">AI Builder Automation Portfolio — Sprint 1</div>
+    <h1>Jason <span>Eggett</span> — AI Builder Plan</h1>
+    <div class="goal">#1 Goal: <strong>Scale Home Court Growth through AI automation — more client results without more manual hours</strong></div>
+    <div class="meta">April 21, 2026 &nbsp;·&nbsp; Home Court Growth &nbsp;·&nbsp; Built in L2</div>
+  </div>
+
+  <!-- ─── SECTION 1: TIME SUMMARY ─── -->
+  <div class="section">
+    <div class="section-title">Section 1</div>
+    <h2 class="section-head">What the Time Audit Revealed</h2>
+    <p class="section-sub">The 3 things that matter most from the data. Full analysis linked below.</p>
+
+    <div class="audit-link">
+      <span class="audit-link-text">14 weekdays analyzed · Google Calendar · Apr 2–21, 2026</span>
+      <a class="audit-link-btn" href="time-audit.html">📊 Full Time Audit →</a>
+    </div>
+
+    <div class="insight-card green">
+      <div class="insight-num">Finding 1 — The Right Bet</div>
+      <div class="insight-head">AI is already your #1 time investment — now it needs to pay off</div>
+      <div class="insight-body">You spent <strong>16 hours on AI learning and setup</strong> in 14 days — more than client calls, more than SEO work, more than team management combined. That's not dabbling — that's a deliberate bet. The next step is converting that setup time into hours reclaimed elsewhere. The automations below are exactly that conversion.</div>
+    </div>
+
+    <div class="insight-card warn">
+      <div class="insight-num">Finding 2 — The Drain</div>
+      <div class="insight-head">You are your own BDR — and it costs you 4–5 hours every week</div>
+      <div class="insight-body">Manual client outreach consumed <strong>10+ hours</strong> across the period: 4 hours calling Jade's leads in a single day, scattered "Call Customers" blocks every afternoon, individual calls to Absolute, Guillen, EVS, Texas Boys, A Plus. Every follow-up is a personal phone call. No sequence, no system, no leverage — just Jason dialing.</div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-num">Finding 3 — The Gap</div>
+      <div class="insight-head">Client attention is inconsistent — burst sessions, not steady rhythms</div>
+      <div class="insight-body">Jade got 4 hours in one burst. Awesome Water got multiple emails with no confirmed response. Absolute Plumbing got one 30-min review. <strong>There is no automated weekly touchpoint per client</strong> — results happen when you remember to check, not on a system that runs without you. That gap is the first thing to close.</div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 2: WHAT I'M BUILDING ─── -->
+  <div class="section">
+    <div class="section-title">Section 2</div>
+    <h2 class="section-head">What I'm Building</h2>
+    <p class="section-sub">6 automation opportunities from the time audit, ranked by impact: hours reclaimed × alignment with scaling Home Court Growth.</p>
+
+    <!-- Build 1 -->
+    <div class="build-card big">
+      <div class="build-card-top">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="build-card-rank">1</span>
+          <div class="build-card-title">AI-Powered Lead Outreach &amp; Follow-Up System</div>
+        </div>
+        <div class="build-card-status"><span class="dot"></span>Not started</div>
+      </div>
+      <div class="build-card-outcome">"New leads get personalized follow-up sequences automatically — I focus on closing, not chasing."</div>
+      <div class="build-card-body">
+        <div>
+          <div class="build-cell-label">What's Happening Today</div>
+          <div class="build-cell-text">4 hours calling Jade's leads in a single day. Multiple "Call Customers" blocks (1–2h each) fill every afternoon. Every follow-up is a manual phone call Jason personally makes — he's running a full BDR function himself with no leverage.</div>
+        </div>
+        <div>
+          <div class="build-cell-label">What the Automated Version Looks Like</div>
+          <div class="build-cell-text">Lead comes in → AI sends personalized SMS/email intro → follows up at Day 2, 5, 10 with context-aware messages → surfaces hot leads with a one-tap "call now" notification. Jason only picks up the phone for interested prospects.</div>
+        </div>
+      </div>
+      <div class="build-card-footer">
+        <span class="pill pill-purple">Big Build</span>
+        <span class="pill pill-warn">⏱ 4–5 hrs / week reclaimed</span>
+      </div>
+    </div>
+
+    <!-- Build 2 -->
+    <div class="build-card medium">
+      <div class="build-card-top">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="build-card-rank">2</span>
+          <div class="build-card-title">Weekly Client Performance Digest</div>
+        </div>
+        <div class="build-card-status"><span class="dot"></span>Not started</div>
+      </div>
+      <div class="build-card-outcome">"Every client gets a weekly performance update without me touching it, and my reviews become 10-minute decisions instead of 30-minute briefings."</div>
+      <div class="build-card-body">
+        <div>
+          <div class="build-cell-label">What's Happening Today</div>
+          <div class="build-cell-text">Online Presence Review meetings with Absolute Plumbing, Guillen, and Safe Plumbing are 30-min manual sessions. Sean got a separate 45-min briefing on Mike's Plumbing Maps strategy. No automated reporting pipeline — every update requires Jason to gather data himself.</div>
+        </div>
+        <div>
+          <div class="build-cell-label">What the Automated Version Looks Like</div>
+          <div class="build-cell-text">Every Friday, an AI agent pulls rank data, GBP impressions, and call tracking → generates plain-English summary emails to each client → Jason gets a 1-page internal digest Monday morning. Reviews shift from "let me look this up" to "here's what changed."</div>
+        </div>
+      </div>
+      <div class="build-card-footer">
+        <span class="pill pill-blue">Medium Lift</span>
+        <span class="pill pill-warn">⏱ 2–3 hrs / week reclaimed</span>
+      </div>
+    </div>
+
+    <!-- Build 3 -->
+    <div class="build-card quick">
+      <div class="build-card-top">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="build-card-rank">3</span>
+          <div class="build-card-title">AI SEO Blog Drafting Pipeline</div>
+        </div>
+        <div class="build-card-status"><span class="dot"></span>Not started</div>
+      </div>
+      <div class="build-card-outcome">"Blog content for all clients goes live every week without me writing or recording anything."</div>
+      <div class="build-card-body">
+        <div>
+          <div class="build-cell-label">What's Happening Today</div>
+          <div class="build-cell-text">"Blog for EVS Mechanical" (30 min), "record video for JADE V on Mike's Plumbing Maps Pack rankings" (30 min), "Enzo's instagram" (60 min) — SEO content is being created manually per client, per week, by Jason or his team.</div>
+        </div>
+        <div>
+          <div class="build-cell-label">What the Automated Version Looks Like</div>
+          <div class="build-cell-text">Claude receives weekly keyword targets per client → drafts 2–3 blogs + social captions → drops them into a Google Doc for 5-minute human review → approved content auto-posts via CMS API. The SEO team shifts from creating to reviewing.</div>
+        </div>
+      </div>
+      <div class="build-card-footer">
+        <span class="pill pill-green">Quick Win</span>
+        <span class="pill pill-warn">⏱ 2–3 hrs / week reclaimed</span>
+      </div>
+    </div>
+
+    <!-- Build 4 -->
+    <div class="build-card quick">
+      <div class="build-card-top">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="build-card-rank">4</span>
+          <div class="build-card-title">Appointment Setter Daily Activity Digest</div>
+        </div>
+        <div class="build-card-status"><span class="dot"></span>Not started</div>
+      </div>
+      <div class="build-card-outcome">"I know exactly what my appointment setters did today without a meeting or a check-in."</div>
+      <div class="build-card-body">
+        <div>
+          <div class="build-cell-label">What's Happening Today</div>
+          <div class="build-cell-text">A 30-min team meeting every Friday is the primary oversight window. Between meetings, setter performance is a black box. The SEO team review happens at 10:45pm Pacific — late-night oversight that signals timezone friction and reactive management.</div>
+        </div>
+        <div>
+          <div class="build-cell-label">What the Automated Version Looks Like</div>
+          <div class="build-cell-text">Setters log calls/outcomes in a shared sheet → at 6pm daily, an AI agent generates a summary (calls made, appointments booked, top objections, flags) → sent to Jason's phone as a text. Weekly meeting becomes 10-min strategy, not status report.</div>
+        </div>
+      </div>
+      <div class="build-card-footer">
+        <span class="pill pill-green">Quick Win</span>
+        <span class="pill pill-warn">⏱ 1.5 hrs / week reclaimed</span>
+      </div>
+    </div>
+
+    <!-- Build 5 -->
+    <div class="build-card quick">
+      <div class="build-card-top">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="build-card-rank">5</span>
+          <div class="build-card-title">Demo Prep Auto-Generator</div>
+        </div>
+        <div class="build-card-status"><span class="dot"></span>Not started</div>
+      </div>
+      <div class="build-card-outcome">"Every sales demo starts with a custom brief already in my hands — I don't prepare, I just show up."</div>
+      <div class="build-card-body">
+        <div>
+          <div class="build-cell-label">What's Happening Today</div>
+          <div class="build-cell-text">"Demo Prep" appears as a recurring 30-min block before client calls on Apr 2, 9, and 13. Each session is manual — researching the prospect, building talking points, reviewing their current online presence from scratch every time.</div>
+        </div>
+        <div>
+          <div class="build-cell-label">What the Automated Version Looks Like</div>
+          <div class="build-cell-text">Jason adds a business name to a form → AI pulls GBP data, Maps Pack ranking, competitor analysis, website score, and 3 key gaps → generates a one-page pre-call brief → lands in his inbox 1 hour before the demo. Zero prep time.</div>
+        </div>
+      </div>
+      <div class="build-card-footer">
+        <span class="pill pill-green">Quick Win</span>
+        <span class="pill pill-warn">⏱ 1 hr / week reclaimed</span>
+      </div>
+    </div>
+
+    <!-- Build 6 -->
+    <div class="build-card medium">
+      <div class="build-card-top">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="build-card-rank">6</span>
+          <div class="build-card-title">Stripe Subscription Monitoring &amp; Billing Automation</div>
+        </div>
+        <div class="build-card-status"><span class="dot"></span>Not started</div>
+      </div>
+      <div class="build-card-outcome">"Billing issues surface themselves — I'm never manually reconciling subscriptions or chasing payment problems."</div>
+      <div class="build-card-body">
+        <div>
+          <div class="build-cell-label">What's Happening Today</div>
+          <div class="build-cell-text">"Update Stripe Subscriptions" appeared as a 45-min calendar block on Apr 20. Manual subscription management across 10+ clients creates fragile billing state — one missed update means a wrong charge or silent churn.</div>
+        </div>
+        <div>
+          <div class="build-cell-label">What the Automated Version Looks Like</div>
+          <div class="build-cell-text">Stripe webhook → AI monitors subscription events → flags cancellations, failed payments, or upgrades → sends a daily 3-line summary and auto-handles routine cases (dunning, payment retry). Jason only touches billing for exceptions.</div>
+        </div>
+      </div>
+      <div class="build-card-footer">
+        <span class="pill pill-blue">Medium Lift</span>
+        <span class="pill pill-warn">⏱ 0.5–1 hr / week reclaimed</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 3: MY SYSTEM ─── -->
+  <div class="section">
+    <div class="section-title">Section 3</div>
+    <h2 class="section-head">My System</h2>
+    <p class="section-sub">The full AI Builder sprint roadmap. S1 is in progress — everything that follows builds on it.</p>
+
+    <div class="sprint-grid">
+
+      <!-- S1 — Active -->
+      <div class="sprint-s1">
+        <div class="sprint-icon">🗺️</div>
+        <div class="sprint-label">Sprint 1 — Now</div>
+        <div class="sprint-name">Time Audit &amp; Automation Blueprint</div>
+        <div class="sprint-done">✓ Time audit complete<br>✓ Builder plan drafted</div>
+      </div>
+
+      <!-- S2 -->
+      <div class="sprint-card">
+        <div class="sprint-icon">🌐</div>
+        <div class="sprint-label">Sprint 2</div>
+        <div class="sprint-name">Deployed Website + Data Collection Tool</div>
+        <div class="sprint-coming">Coming in Sprint 2</div>
+      </div>
+
+      <!-- S3 -->
+      <div class="sprint-card">
+        <div class="sprint-icon">⚙️</div>
+        <div class="sprint-label">Sprint 3</div>
+        <div class="sprint-name">Automated n8n or Claude Routines Workflow</div>
+        <div class="sprint-coming">Coming in Sprint 3</div>
+      </div>
+
+      <!-- S4 -->
+      <div class="sprint-card">
+        <div class="sprint-icon">🧠</div>
+        <div class="sprint-label">Sprint 4</div>
+        <div class="sprint-name">Knowledge Wiki Context System</div>
+        <div class="sprint-coming">Coming in Sprint 4</div>
+      </div>
+
+      <!-- S5 -->
+      <div class="sprint-card">
+        <div class="sprint-icon">🤖</div>
+        <div class="sprint-label">Sprint 5</div>
+        <div class="sprint-name">Custom Agentic Workflow</div>
+        <div class="sprint-coming">Coming in Sprint 5</div>
+      </div>
+
+    </div>
+
+    <!-- S6 full-width -->
+    <div style="margin-top:12px;">
+      <div class="sprint-card" style="opacity:.42;display:flex;align-items:center;gap:18px;padding:18px 22px;">
+        <div style="font-size:22px;">✅</div>
+        <div>
+          <div style="font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;">Sprint 6</div>
+          <div style="font-size:14px;font-weight:700;color:var(--text-muted);">Eval System — Tested and Documented</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:6px;font-style:italic;">Coming in Sprint 6</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── FOOTER ─── -->
+  <div class="footer">
+    AI Builder Automation Portfolio — April 21, 2026 &nbsp;|&nbsp; Built in L2<br>
+    <span style="color:var(--text-dim);font-size:12px;"><a href="time-audit.html">← Full Time Audit</a></span>
+  </div>
+
+</div>
+</body>
+</html>
