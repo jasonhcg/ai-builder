@@ -338,20 +338,20 @@
 
     <div class="sprint-grid">
 
-      <!-- S1 — Active -->
-      <div class="sprint-s1">
+      <!-- S1 — Done -->
+      <div class="sprint-card" style="opacity:1;">
         <div class="sprint-icon">🗺️</div>
-        <div class="sprint-label">Sprint 1 — Now</div>
+        <div class="sprint-label" style="color:var(--accent3);">Sprint 1 — Done</div>
         <div class="sprint-name">Time Audit &amp; Automation Blueprint</div>
-        <div class="sprint-done">✓ Time audit complete<br>✓ Builder plan drafted</div>
+        <div class="sprint-coming" style="color:var(--accent3);font-style:normal;">✓ Time audit complete<br>✓ Builder plan drafted</div>
       </div>
 
-      <!-- S2 -->
-      <div class="sprint-card">
+      <!-- S2 — Active -->
+      <div class="sprint-s1">
         <div class="sprint-icon">🌐</div>
-        <div class="sprint-label">Sprint 2</div>
-        <div class="sprint-name">Deployed Website + Data Collection Tool</div>
-        <div class="sprint-coming">Coming in Sprint 2</div>
+        <div class="sprint-label">Sprint 2 — Now</div>
+        <div class="sprint-name">Deployed Dashboard + Notion Backend</div>
+        <div class="sprint-done">✓ Kanban dashboard live<br>✓ Notion database wired<br>✓ Automation advisor built</div>
       </div>
 
       <!-- S3 -->
@@ -389,6 +389,102 @@
           <div style="font-size:14px;font-weight:700;color:var(--text-muted);">Eval System — Tested and Documented</div>
           <div style="font-size:12px;color:var(--text-dim);margin-top:6px;font-style:italic;">Coming in Sprint 6</div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION 4: SPRINT 2 ─── -->
+  <div class="section">
+    <div class="section-title">Section 4</div>
+    <h2 class="section-head">Sprint 2 — What I Built</h2>
+    <p class="section-sub">Deployed dashboard, live Notion backend, and an automation advisor agent. Everything below is shipped and running.</p>
+
+    <!-- Build 1 -->
+    <div class="build-card medium">
+      <div class="build-card-top">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="build-card-rank">1</span>
+          <div class="build-card-title">Kanban Automation Dashboard</div>
+        </div>
+        <div class="build-card-status" style="color:var(--accent3);border-color:var(--accent3);"><span class="dot" style="background:var(--accent3);"></span>Shipped</div>
+      </div>
+      <div class="build-card-outcome">"8 automation ideas as draggable cards — move them between Suggested, To Build, In Progress, and Done."</div>
+      <div class="build-card-body">
+        <div>
+          <div class="build-cell-label">What was built</div>
+          <div class="build-cell-text">A full Kanban board in a single HTML file. Cards load live from Notion on every visit. Drag-and-drop moves are PIN-protected so shared viewers can't accidentally change anything.</div>
+        </div>
+        <div>
+          <div class="build-cell-label">Live at</div>
+          <div class="build-cell-text"><a href="https://ai-builder-tan-five.vercel.app/ai-builder-dashboard.html" target="_blank">ai-builder-tan-five.vercel.app/ai-builder-dashboard.html</a></div>
+        </div>
+      </div>
+      <div class="build-card-footer">
+        <span class="pill pill-blue">Medium Lift</span>
+        <span class="pill pill-green">✓ Deployed</span>
+      </div>
+    </div>
+
+    <!-- Build 2 -->
+    <div class="build-card quick">
+      <div class="build-card-top">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="build-card-rank">2</span>
+          <div class="build-card-title">Notion Backend — AI Automation Roadmap</div>
+        </div>
+        <div class="build-card-status" style="color:var(--accent3);border-color:var(--accent3);"><span class="dot" style="background:var(--accent3);"></span>Shipped</div>
+      </div>
+      <div class="build-card-outcome">"Every card on the dashboard is a live Notion row — drag a card and the status updates in Notion instantly."</div>
+      <div class="build-card-body">
+        <div>
+          <div class="build-cell-label">What was built</div>
+          <div class="build-cell-text">A Notion database with Status, Priority, Description, Submitted By, and Submitted At fields. A Vercel serverless API (GET + PATCH) connects the dashboard to Notion in real time.</div>
+        </div>
+        <div>
+          <div class="build-cell-label">Notion database</div>
+          <div class="build-cell-text"><a href="https://www.notion.so/e7fd74ede50f408bb42e3c375cec3081" target="_blank">AI Automation Roadmap →</a></div>
+        </div>
+      </div>
+      <div class="build-card-footer">
+        <span class="pill pill-green">Quick Win</span>
+        <span class="pill pill-green">✓ Deployed</span>
+      </div>
+    </div>
+
+    <!-- Build 3 -->
+    <div class="build-card big">
+      <div class="build-card-top">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="build-card-rank">3</span>
+          <div class="build-card-title">Automation Advisor Agent</div>
+        </div>
+        <div class="build-card-status" style="color:var(--accent3);border-color:var(--accent3);"><span class="dot" style="background:var(--accent3);"></span>Shipped</div>
+      </div>
+      <div class="build-card-outcome">"Run /automation-advisor and get a 60-second briefing: top priorities, stalls, and one automation to add next."</div>
+      <div class="build-card-body">
+        <div>
+          <div class="build-cell-label">What was built</div>
+          <div class="build-cell-text">A three-mode Claude Code skill. Mode 1 reads the Notion roadmap and surfaces priorities and gaps. Mode 2 scans recent files, Claude sessions, Calendar, and Slack for automation opportunities. Mode 3 (interactive) scopes a full build plan and documents it in Notion.</div>
+        </div>
+        <div>
+          <div class="build-cell-label">How to run</div>
+          <div class="build-cell-text">Type <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px;">/automation-advisor</code> in any Claude Code session from the project folder.</div>
+        </div>
+      </div>
+      <div class="build-card-footer">
+        <span class="pill pill-purple">Big Build</span>
+        <span class="pill pill-green">✓ Deployed</span>
+      </div>
+    </div>
+
+    <!-- Live URLs -->
+    <div class="insight-card green" style="margin-top:8px;">
+      <div class="insight-num">Live URLs — Sprint 2</div>
+      <div class="insight-head">Everything is deployed and public</div>
+      <div class="insight-body" style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">
+        <div>📊 Time Audit &nbsp;→&nbsp; <a href="https://ai-builder-tan-five.vercel.app/time-audit.html" target="_blank">ai-builder-tan-five.vercel.app/time-audit.html</a></div>
+        <div>📋 Builder Plan &nbsp;→&nbsp; <a href="https://ai-builder-tan-five.vercel.app/ai-builder-plan.html" target="_blank">ai-builder-tan-five.vercel.app/ai-builder-plan.html</a></div>
+        <div>🗂 Dashboard &nbsp;→&nbsp; <a href="https://ai-builder-tan-five.vercel.app/ai-builder-dashboard.html" target="_blank">ai-builder-tan-five.vercel.app/ai-builder-dashboard.html</a></div>
       </div>
     </div>
   </div>
