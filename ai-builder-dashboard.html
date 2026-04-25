@@ -355,6 +355,106 @@
     background: rgba(90,106,130,.05);
   }
 
+  /* ── PIN Modal ── */
+  .pin-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .pin-overlay.hidden { display: none; }
+  .pin-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    width: 320px;
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0,0,0,.5);
+  }
+  .pin-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .pin-sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+  }
+  .pin-dots {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .pin-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: transparent;
+    transition: background .15s, border-color .15s;
+  }
+  .pin-dot.filled { background: var(--accent); border-color: var(--accent); }
+  .pin-dot.error  { background: var(--danger); border-color: var(--danger); }
+  .pin-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 1px;
+    height: 1px;
+  }
+  .pin-keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .pin-key {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    transition: background .1s, border-color .1s;
+    user-select: none;
+  }
+  .pin-key:hover { background: #28334a; border-color: #3a4560; }
+  .pin-key:active { background: #1e2a3d; }
+  .pin-key.wide { grid-column: span 2; font-size: 13px; font-weight: 600; }
+  .pin-cancel {
+    font-size: 13px;
+    color: var(--text-dim);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: color .15s;
+  }
+  .pin-cancel:hover { color: var(--text-muted); }
+  .pin-error-msg {
+    font-size: 12px;
+    color: var(--danger);
+    min-height: 18px;
+    margin-bottom: 8px;
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%,60% { transform: translateX(-6px); }
+    40%,80% { transform: translateX(6px); }
+  }
+  .pin-box.shake { animation: shake .35s ease; }
+
   /* ── Footer ── */
   .footer {
     text-align: center;
@@ -430,6 +530,36 @@
 
   </div>
 
+  <!-- PIN Modal -->
+  <div class="pin-overlay hidden" id="pin-overlay">
+    <div class="pin-box" id="pin-box">
+      <div class="pin-title">Enter PIN to move card</div>
+      <div class="pin-sub" id="pin-sub">Moving to <strong id="pin-target-col"></strong></div>
+      <div class="pin-dots" id="pin-dots">
+        <div class="pin-dot" id="pd0"></div>
+        <div class="pin-dot" id="pd1"></div>
+        <div class="pin-dot" id="pd2"></div>
+        <div class="pin-dot" id="pd3"></div>
+      </div>
+      <div class="pin-error-msg" id="pin-error"></div>
+      <div class="pin-keypad">
+        <button class="pin-key" data-k="1">1</button>
+        <button class="pin-key" data-k="2">2</button>
+        <button class="pin-key" data-k="3">3</button>
+        <button class="pin-key" data-k="4">4</button>
+        <button class="pin-key" data-k="5">5</button>
+        <button class="pin-key" data-k="6">6</button>
+        <button class="pin-key" data-k="7">7</button>
+        <button class="pin-key" data-k="8">8</button>
+        <button class="pin-key" data-k="9">9</button>
+        <button class="pin-key" data-k="back">⌫</button>
+        <button class="pin-key" data-k="0">0</button>
+        <button class="pin-key" data-k="clear">✕</button>
+      </div>
+      <button class="pin-cancel" id="pin-cancel">Cancel</button>
+    </div>
+  </div>
+
   <div class="footer">
     Automation Roadmap Kanban &nbsp;·&nbsp; Home Court Growth &nbsp;·&nbsp; April 2026<br>
     <a href="ai-builder-plan.html">← Full Builder Plan</a>
@@ -493,25 +623,27 @@ async function fetchRoadmap() {
   }
 }
 
-async function patchStatus(cardId, newStatus) {
+async function patchStatus(cardId, newStatus, pin) {
   patchInFlight++;
   setSync('syncing', 'Saving…');
   try {
     const res = await fetch('/api/roadmap', {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-Dashboard-Pin': pin },
       body: JSON.stringify({ id: cardId, status: newStatus }),
     });
+    if (res.status === 401) throw new Error('wrong-pin');
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
       throw new Error(body.error || `HTTP ${res.status}`);
     }
   } catch (err) {
-    // Revert: re-fetch ground truth from Notion
-    showError('Sync failed (' + err.message + '). Reverting…');
-    setSync('error', 'Error');
-    await fetchRoadmap();
-    return;
+    if (err.message !== 'wrong-pin') {
+      showError('Sync failed (' + err.message + '). Reverting…');
+      setSync('error', 'Error');
+      await fetchRoadmap();
+    }
+    throw err; // re-throw so PIN modal can handle wrong-pin
   } finally {
     patchInFlight--;
   }
@@ -645,18 +777,110 @@ function setupDropZones() {
       removePlaceholder();
       if (!dragCardId) return;
 
-      const targetCol  = col.dataset.col;
-      const newStatus  = COL_TO_STATUS[targetCol];
+      const targetCol = col.dataset.col;
+      const newStatus = COL_TO_STATUS[targetCol];
       const card = cards.find(c => c.id === dragCardId);
       if (!card || card.status === newStatus) { renderBoard(); return; }
 
-      // Optimistic update then sync
-      card.status = newStatus;
-      renderBoard();
-      patchStatus(dragCardId, newStatus);
+      // Show PIN modal — don't apply move until PIN confirmed
+      showPinModal(card, newStatus);
     });
   });
 }
+
+// ── PIN Modal ───────────────────────────────────────────────
+let pinBuffer = '';
+let pendingCard = null;
+let pendingStatus = null;
+
+const pinOverlay   = document.getElementById('pin-overlay');
+const pinBox       = document.getElementById('pin-box');
+const pinErrorEl   = document.getElementById('pin-error');
+const pinTargetCol = document.getElementById('pin-target-col');
+
+function showPinModal(card, newStatus) {
+  pendingCard   = card;
+  pendingStatus = newStatus;
+  pinBuffer     = '';
+  pinErrorEl.textContent = '';
+  pinTargetCol.textContent = newStatus;
+  updatePinDots();
+  pinOverlay.classList.remove('hidden');
+}
+
+function closePinModal() {
+  pinOverlay.classList.add('hidden');
+  pendingCard = pendingStatus = null;
+  pinBuffer = '';
+  pinErrorEl.textContent = '';
+  updatePinDots();
+  renderBoard();
+}
+
+function updatePinDots(state) {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('pd' + i);
+    dot.className = 'pin-dot' +
+      (state === 'error' ? ' error' : i < pinBuffer.length ? ' filled' : '');
+  }
+}
+
+async function submitPin() {
+  if (pinBuffer.length !== 4) return;
+  const pin = pinBuffer;
+  pinBuffer = '';
+  updatePinDots();
+
+  try {
+    await patchStatus(pendingCard.id, pendingStatus, pin);
+    // Success — apply move and close
+    pendingCard.status = pendingStatus;
+    closePinModal();
+    renderBoard();
+    setSync('ok', 'Synced');
+  } catch (err) {
+    if (err.message === 'wrong-pin') {
+      updatePinDots('error');
+      pinErrorEl.textContent = 'Incorrect PIN';
+      pinBox.classList.remove('shake');
+      void pinBox.offsetWidth; // reflow to restart animation
+      pinBox.classList.add('shake');
+      setTimeout(() => { updatePinDots(); pinErrorEl.textContent = ''; }, 1200);
+    }
+  }
+}
+
+// Keypad clicks
+document.querySelectorAll('.pin-key').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const k = btn.dataset.k;
+    if (k === 'back')  { pinBuffer = pinBuffer.slice(0, -1); updatePinDots(); }
+    else if (k === 'clear') { pinBuffer = ''; updatePinDots(); }
+    else if (pinBuffer.length < 4) {
+      pinBuffer += k;
+      updatePinDots();
+      if (pinBuffer.length === 4) submitPin();
+    }
+  });
+});
+
+// Physical keyboard support
+document.addEventListener('keydown', e => {
+  if (pinOverlay.classList.contains('hidden')) return;
+  if (e.key >= '0' && e.key <= '9' && pinBuffer.length < 4) {
+    pinBuffer += e.key;
+    updatePinDots();
+    if (pinBuffer.length === 4) submitPin();
+  } else if (e.key === 'Backspace') {
+    pinBuffer = pinBuffer.slice(0, -1);
+    updatePinDots();
+  } else if (e.key === 'Escape') {
+    closePinModal();
+  }
+});
+
+document.getElementById('pin-cancel').addEventListener('click', closePinModal);
+pinOverlay.addEventListener('click', e => { if (e.target === pinOverlay) closePinModal(); });
 
 // ── Init ────────────────────────────────────────────────────
 document.getElementById('refresh-btn').addEventListener('click', fetchRoadmap);
