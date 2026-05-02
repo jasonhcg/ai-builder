@@ -114,6 +114,58 @@
   /* Footer */
   .footer { text-align: center; padding: 32px 0; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-dim); margin-top: 48px; }
 
+  /* Project cards */
+  .project-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 26px; margin-bottom: 16px; position: relative; overflow: hidden; }
+  .project-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent); }
+  .project-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 10px; }
+  .project-card-icon { font-size: 22px; margin-right: 4px; }
+  .project-card-title { font-size: 17px; font-weight: 700; color: #fff; }
+  .project-card-tagline { font-size: 14px; color: var(--text-muted); margin-bottom: 18px; font-style: italic; }
+  .project-card-body { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+  @media(max-width:700px) { .project-card-body { grid-template-columns: 1fr; } }
+  .project-card-footer { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; padding-top: 16px; border-top: 1px solid var(--border); }
+
+  /* Modal buttons */
+  .modal-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 14px; font-size: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: border-color .15s, color .15s; white-space: nowrap; }
+  .modal-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .modal-btn.primary { border-color: var(--accent); color: var(--accent); background: rgba(79,142,247,.08); }
+  .modal-btn.primary:hover { background: rgba(79,142,247,.16); }
+
+  /* Modal overlay */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.72); z-index: 1000; align-items: center; justify-content: center; padding: 24px; }
+  .modal-overlay.open { display: flex; }
+  .modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; width: 100%; max-width: 680px; max-height: 88vh; overflow-y: auto; padding: 32px; position: relative; }
+  .modal-close { position: absolute; top: 16px; right: 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); cursor: pointer; font-size: 16px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; transition: color .15s; }
+  .modal-close:hover { color: #fff; }
+  .modal-title { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+  .modal-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .modal-section-head { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin-bottom: 12px; margin-top: 22px; }
+  .modal-section-head:first-of-type { margin-top: 0; }
+  .modal-text { font-size: 14px; color: var(--text-muted); line-height: 1.65; margin-bottom: 14px; }
+  .modal-text strong { color: var(--text); }
+
+  /* Flow diagram */
+  .flow { display: flex; flex-wrap: wrap; gap: 0; align-items: center; margin-bottom: 20px; }
+  .flow-step { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 13px; font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; }
+  .flow-step.highlight { border-color: var(--accent); color: var(--accent); background: rgba(79,142,247,.08); }
+  .flow-step.highlight-purple { border-color: #a58af0; color: #a58af0; background: rgba(124,95,230,.08); }
+  .flow-arrow { color: var(--text-dim); font-size: 14px; padding: 0 6px; flex-shrink: 0; }
+
+  /* Code block */
+  .code-block { background: #0a0c11; border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; font-family: 'SF Mono', 'Fira Code', Consolas, monospace; font-size: 12px; line-height: 1.7; color: #c5d0e0; white-space: pre-wrap; word-break: break-word; position: relative; margin-bottom: 16px; }
+  .code-copy { position: absolute; top: 10px; right: 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: color .15s; }
+  .code-copy:hover { color: var(--accent); }
+  .code-copy.copied { color: var(--accent3); }
+
+  /* Tool list */
+  .tool-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .tool-row { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; }
+  .tool-label { font-weight: 700; color: var(--text); min-width: 160px; flex-shrink: 0; }
+  .tool-desc { color: var(--text-muted); }
+  .deploy-list { list-style: none; counter-reset: step; display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .deploy-list li { counter-increment: step; display: flex; gap: 10px; font-size: 13px; color: var(--text-muted); }
+  .deploy-list li::before { content: counter(step); display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border); font-size: 11px; font-weight: 800; color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+
   /* Audit link banner */
   .audit-link { display: flex; align-items: center; justify-content: space-between; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-bottom: 28px; gap: 12px; }
   .audit-link-text { font-size: 14px; color: var(--text-muted); }
@@ -489,6 +541,48 @@
     </div>
   </div>
 
+  <!-- ─── SECTION 5: AI PROJECTS ─── -->
+  <div class="section">
+    <div class="section-title">Section 5</div>
+    <h2 class="section-head">AI Projects</h2>
+    <p class="section-sub">Live automations built and deployed — running in production with no manual intervention required.</p>
+
+    <!-- Cloud Email Manager -->
+    <div class="project-card">
+      <div class="project-card-top">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="project-card-icon">✉️</span>
+          <div class="project-card-title">Cloud Email Manager</div>
+        </div>
+        <div class="build-card-status" style="color:var(--accent3);border-color:var(--accent3);"><span class="dot" style="background:var(--accent3);"></span>Running</div>
+      </div>
+      <div class="project-card-tagline">"Daily inbox triage that reads, categorizes, and drafts replies in my voice — runs in the cloud, nothing sent without my review."</div>
+      <div class="project-card-body">
+        <div>
+          <div class="build-cell-label">What it does</div>
+          <div class="build-cell-text">An n8n workflow triggers daily at 4pm, fetches the last 24 hours of Gmail, cleans the raw text, and routes each email through a Claude Haiku categorizer. Noise and informational emails are dropped. Emails flagged as urgent or reply-needed are handed to a Claude Sonnet drafting agent that writes replies in Jason's voice and saves them directly as Gmail drafts. A Slack DM closes the loop with a summary and one-click links to high-priority items.</div>
+        </div>
+        <div>
+          <div class="build-cell-label">Stack</div>
+          <div class="build-cell-text" style="display:flex;flex-direction:column;gap:5px;">
+            <span>⚡ <strong>n8n Cloud</strong> — workflow engine</span>
+            <span>📬 <strong>Gmail OAuth2</strong> — fetch + draft</span>
+            <span>🤖 <strong>Claude Haiku</strong> — fast categorizer</span>
+            <span>✍️ <strong>Claude Sonnet</strong> — reply drafter agent</span>
+            <span>💬 <strong>Slack OAuth2</strong> — daily summary DM</span>
+          </div>
+        </div>
+      </div>
+      <div class="project-card-footer">
+        <span class="pill pill-blue">n8n</span>
+        <span class="pill pill-purple">Claude Haiku + Sonnet</span>
+        <span class="pill pill-green">✓ Running daily</span>
+        <button class="modal-btn primary" onclick="openModal('email-built-modal')">📐 What I built</button>
+        <button class="modal-btn" onclick="openModal('email-docs-modal')">📄 Documentation</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ─── FOOTER ─── -->
   <div class="footer">
     AI Builder Automation Portfolio — April 21, 2026 &nbsp;|&nbsp; Built in L2<br>
@@ -496,5 +590,176 @@
   </div>
 
 </div>
+
+<!-- ─── MODAL: What I Built ─── -->
+<div class="modal-overlay" id="email-built-modal" onclick="handleOverlayClick(event, 'email-built-modal')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('email-built-modal')">✕</button>
+    <div class="modal-title">Cloud Email Manager</div>
+    <div class="modal-subtitle">What I built — automation flow &amp; logic</div>
+
+    <div class="modal-section-head">Automation Flow</div>
+    <div class="flow">
+      <div class="flow-step highlight">⏰ Schedule Trigger<br><span style="font-size:10px;font-weight:400;color:var(--text-muted);">Daily at 4pm</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">📬 Get Many Messages<br><span style="font-size:10px;font-weight:400;color:var(--text-muted);">Last 24 hrs of Gmail</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">🔑 Key Fields<br><span style="font-size:10px;font-weight:400;color:var(--text-muted);">From, subject, body</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">🧹 Remove Extra Text<br><span style="font-size:10px;font-weight:400;color:var(--text-muted);">Strip signatures &amp; HTML</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step highlight">🧠 Email Categorizer<br><span style="font-size:10px;font-weight:400;color:var(--text-muted);">Claude Haiku</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">🔀 If Needs Reply<br><span style="font-size:10px;font-weight:400;color:var(--text-muted);">Route decision</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step highlight-purple">✍️ Email Drafter Agent<br><span style="font-size:10px;font-weight:400;color:var(--text-muted);">Claude Sonnet + Gmail tool</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">📋 Summarize<br><span style="font-size:10px;font-weight:400;color:var(--text-muted);">Drafted + flagged</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step highlight">💬 Slack DM<br><span style="font-size:10px;font-weight:400;color:var(--text-muted);">Daily summary</span></div>
+    </div>
+
+    <div class="modal-section-head">Categorization Logic</div>
+    <div class="modal-text">
+      Every email is scored by Claude Haiku into one of three buckets:
+    </div>
+    <div class="tool-list">
+      <div class="tool-row">
+        <span class="tool-label" style="color:var(--danger);">🚨 URGENT</span>
+        <span class="tool-desc">Client complaints, payment issues, deals at risk — needs same-day action. Goes straight to the drafter agent.</span>
+      </div>
+      <div class="tool-row">
+        <span class="tool-label" style="color:var(--accent);">💬 REPLY_NEEDED</span>
+        <span class="tool-desc">Client questions, prospect inquiries, partnership requests — silence would be costly. Goes to the drafter agent.</span>
+      </div>
+      <div class="tool-row">
+        <span class="tool-label" style="color:var(--text-dim);">🔇 NOISE</span>
+        <span class="tool-desc">Newsletters, automated notifications, receipts, CC threads. Dropped — no draft, no ping.</span>
+      </div>
+    </div>
+
+    <div class="modal-section-head">What triggers a draft</div>
+    <div class="modal-text">
+      Any email categorized as <strong>URGENT</strong> or <strong>REPLY_NEEDED</strong> is passed to the Claude Sonnet drafting agent. The agent receives the original email, the sender's name, and Jason's voice guidelines, then calls the Gmail <em>Create Draft</em> tool to save a ready-to-review reply directly in the Gmail Drafts folder. <strong>Nothing is sent automatically</strong> — Jason reviews and hits Send. The Slack DM at the end of the run lists every draft created and flags URGENT items with a direct Gmail link.
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL: Documentation ─── -->
+<div class="modal-overlay" id="email-docs-modal" onclick="handleOverlayClick(event, 'email-docs-modal')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('email-docs-modal')">✕</button>
+    <div class="modal-title">Cloud Email Manager</div>
+    <div class="modal-subtitle">Documentation — tools, deployment, and system prompts</div>
+
+    <div class="modal-section-head">Tools Used</div>
+    <div class="tool-list">
+      <div class="tool-row"><span class="tool-label">n8n Cloud</span><span class="tool-desc">Workflow engine — hosts and schedules the automation, no laptop required</span></div>
+      <div class="tool-row"><span class="tool-label">Gmail OAuth2</span><span class="tool-desc">Fetches incoming emails and creates drafts via the Gmail API</span></div>
+      <div class="tool-row"><span class="tool-label">Claude Haiku</span><span class="tool-desc">Fast, cheap LLM used for the categorization step — reads every email and outputs structured JSON</span></div>
+      <div class="tool-row"><span class="tool-label">Claude Sonnet</span><span class="tool-desc">Higher-capability model used as the drafting agent — writes replies in Jason's voice with access to the Gmail draft tool</span></div>
+      <div class="tool-row"><span class="tool-label">Slack OAuth2</span><span class="tool-desc">Sends the end-of-run summary as a direct message to Jason</span></div>
+    </div>
+
+    <div class="modal-section-head">How to Deploy</div>
+    <ol class="deploy-list">
+      <li>Create an <strong>n8n Cloud</strong> account at n8n.io and start a new workflow</li>
+      <li>Add a <strong>Schedule Trigger</strong> node set to run daily at 4pm your local time</li>
+      <li>Connect <strong>Gmail OAuth2</strong> credentials and add a "Get Many Messages" node — filter to the last 24 hours</li>
+      <li>Add a <strong>Set</strong> node (Key Fields) to extract from, subject, and cleaned body text</li>
+      <li>Add a <strong>Code</strong> or <strong>Edit Fields</strong> node (Remove Extra Text) to strip HTML tags, footers, and signatures</li>
+      <li>Add an <strong>AI · Basic LLM Chain</strong> node, connect it to the Anthropic Claude Haiku model, and paste the <em>Email Categorizer</em> system prompt below</li>
+      <li>Add an <strong>If</strong> node that checks whether the Haiku output category equals <code style="background:var(--surface2);padding:1px 5px;border-radius:4px;font-size:11px;">REPLY_NEEDED</code> or <code style="background:var(--surface2);padding:1px 5px;border-radius:4px;font-size:11px;">URGENT</code></li>
+      <li>On the true branch, add an <strong>AI Agent</strong> node connected to Claude Sonnet — paste the <em>Email Drafter Agent</em> system prompt below and attach a <strong>Gmail · Create Draft</strong> tool</li>
+      <li>After the agent, add a <strong>Summarize</strong> node to collect all drafted email subjects</li>
+      <li>Add a <strong>Slack</strong> node with your OAuth2 credentials — send the summary as a DM to yourself with one-click Gmail links for URGENT items</li>
+      <li>Add your <strong>Anthropic API key</strong> under n8n Credentials → Anthropic</li>
+      <li><strong>Activate</strong> the workflow — it will run automatically every day at 4pm</li>
+    </ol>
+
+    <div class="modal-section-head">Email Categorizer — System Prompt (Claude Haiku)</div>
+    <div style="position:relative;">
+      <div class="code-block" id="categorizer-prompt">You are an email triage assistant for Jason Eggett, owner of Home Court Growth — a local SEO and digital marketing agency serving home service businesses.
+
+Your job is to read each email and classify it into exactly one of three categories:
+
+URGENT — Time-sensitive. Client complaints, payment failures, deals at risk, or anything requiring same-day action.
+
+REPLY_NEEDED — Requires a personal response from Jason. Client questions, prospect inquiries, partnership requests, or anything where silence would be costly or rude.
+
+NOISE — No action required. Newsletters, automated notifications, marketing emails, receipts, order confirmations, CC threads Jason doesn't need to reply to, and informational updates.
+
+Output only a valid JSON object. No preamble, no explanation outside the JSON.
+
+{
+  "category": "URGENT" | "REPLY_NEEDED" | "NOISE",
+  "reason": "One sentence explaining the classification.",
+  "suggested_subject": "Proposed reply subject line — include only if category is URGENT or REPLY_NEEDED"
+}</div>
+      <button class="code-copy" onclick="copyCode('categorizer-prompt', this)">Copy</button>
+    </div>
+
+    <div class="modal-section-head">Email Drafter Agent — System Prompt (Claude Sonnet)</div>
+    <div style="position:relative;">
+      <div class="code-block" id="drafter-prompt">You are Jason Eggett's email drafting assistant. Jason owns Home Court Growth, a local SEO and digital marketing agency that helps home service businesses (plumbers, HVAC, landscapers) rank higher on Google Maps and get more calls.
+
+Jason's writing voice:
+- Direct and confident, but warm
+- Short paragraphs — two to three sentences max per paragraph
+- No filler phrases ("I hope this finds you well", "don't hesitate to reach out", "as per my last email")
+- Addresses people by first name
+- Always ends with a clear, specific next step or question
+- Signs off as just: Jason
+
+Your task: Write a complete, ready-to-send email reply to the email provided. Then use the Gmail Create Draft tool to save it as a draft.
+
+Rules:
+- Match Jason's voice exactly — a reader who knows him should not be able to tell it was AI-written
+- Keep it under 150 words unless the situation genuinely requires more
+- If you're missing a key detail (pricing, a specific date, a client name), make a reasonable assumption and flag it in [brackets] so Jason can fill it in before sending
+- Do not include a subject line in the body — the Gmail tool handles that separately
+
+When calling the Gmail Create Draft tool, pass:
+- to: the sender's email address
+- subject: the suggested reply subject from the categorizer output (or write a concise one if not provided)
+- body: your drafted reply text</div>
+      <button class="code-copy" onclick="copyCode('drafter-prompt', this)">Copy</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function openModal(id) {
+    document.getElementById(id).classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function handleOverlayClick(e, id) {
+    if (e.target === e.currentTarget) closeModal(id);
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay.open').forEach(function(m) {
+        m.classList.remove('open');
+      });
+      document.body.style.overflow = '';
+    }
+  });
+  function copyCode(blockId, btn) {
+    var text = document.getElementById(blockId).innerText;
+    navigator.clipboard.writeText(text).then(function() {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(function() {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+</script>
 </body>
 </html>
